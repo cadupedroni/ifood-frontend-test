@@ -6,7 +6,7 @@ const Container = styled.section`
   flex-direction: column;
   display: flex;
 `
-const Search = styled.input`
+const SearchField = styled.input`
   height: 36px;
   padding: 5px 20px;
   border: solid 1px #e5e5e5;
@@ -28,14 +28,12 @@ const Button = styled.button`
   cursor: pointer;
 `
 
-export default class Filter extends Component {
+export default class Search extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      search: '',
-      filters: [],
-      values: []
+      search: ''
     }
 
     this.Search = this.Search.bind(this)
@@ -75,7 +73,7 @@ export default class Filter extends Component {
     return(
       <Container>
         <Title type='h2' color='#3e3e3e' label='Busca' />
-            <Search type='text' value={this.props.search} onChange={this.props.Search} placeholder='Digite o nome da playlist' />
+            <SearchField type='text' value={this.props.search} onChange={this.props.Search} placeholder='Digite o nome da playlist' />
             <Button type="submit">Buscar</Button>
       </Container>
     )
