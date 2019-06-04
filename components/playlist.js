@@ -49,14 +49,31 @@ export default class Playlist extends Component {
 
     this.state = {
       playlists: [],
-      query: '',
       loggedIn: '',
       search: ''
     }
 
     this.getHashParams = this.getHashParams.bind(this)
-    this.getPlaylists = this.getPlaylists.bind(this)
 
+  }
+
+  getHashParams() {
+    var hashParams = {};
+    var e, r = /([^&;=]+)=?([^&;]*)/g,
+        q = window.location.hash.substring(1);
+        //console.log('hash ' + q)
+    e = r.exec(q)
+    while (e) {
+       hashParams[e[1]] = decodeURIComponent(e[2]);
+       e = r.exec(q);
+    }
+    return hashParams;
+  }
+
+  updateSearch(e){
+    this.setState({
+      search: e.target.value.substr(0, 20)
+    })
   }
 
   componentDidMount(){
@@ -73,58 +90,34 @@ export default class Playlist extends Component {
 
     //console.log('Token? ' + params.access_token)
     //console.log('Logado? ' + this.state.loggedIn)
-    this.getPlaylists()
     
-  }
-
-  getHashParams() {
-    var hashParams = {};
-    var e, r = /([^&;=]+)=?([^&;]*)/g,
-        q = window.location.hash.substring(1);
-        //console.log('hash ' + q)
-    e = r.exec(q)
-    while (e) {
-       hashParams[e[1]] = decodeURIComponent(e[2]);
-       e = r.exec(q);
-    }
-    return hashParams;
-  }
-
-  getPlaylists(){
     spotifyApi.getFeaturedPlaylists()
     .then(() => {
-      this.fetchPlaylists()
-    })
+        const apiSpotify = 'https://api.spotify.com/v1/browse/featured-playlists'
+        const accessToken = token
+
+        fetch(apiSpotify, {
+          headers: {
+            authorization: 'Bearer ' + accessToken
+          }
+        })
+        .then(response => response.json())
+        .then(parsedJSON => parsedJSON.playlists.items.map(item => (
+          {
+            id: `${item.id}`,
+            name: `${item.name}`
+          }
+        ))
+        )
+        .then(playlists => this.setState({
+          playlists
+        }))    
+        .catch(error => console.log('parsing failed', error))
+      }
+    ) 
   }
 
-  fetchPlaylists(token){
-    const apiSpotify = 'https://api.spotify.com/v1/browse/featured-playlists'
-    const accessToken = 'BQBR6d_JxKYqTgaGwjTE8f_npP-Z8ZvtDBXIc_u5NyI6zpXcctC4cFVDb5mZZBqOyF69hX57_tcW7zi7xdw7Bn3AP0EtWRqUlKO8Kx_UVcmmyBz02NrwzvB6wiw1PxoGrhkvjG6vIpNshl4XO-FJcnSet1_TAwOW09iXBbA5_NbPiaaD0q3gMOQ0niXBHrk5dKY3U-ZbJs4'
-    //console.log('AccessToken? ' + accessToken)
-    fetch(apiSpotify, {
-      headers: {
-        authorization: 'Bearer ' + accessToken
-      }
-    })
-    .then(response => response.json())
-    .then(parsedJSON => parsedJSON.playlists.items.map(item => (
-      {
-        id: `${item.id}`,
-        name: `${item.name}`
-      }
-    ))
-    )
-    .then(playlists => this.setState({
-      playlists
-    }))    
-    .catch(error => console.log('parsing failed', error))
-  }
-
-  updateSearch(e){
-    this.setState({
-      search: e.target.value.substr(0, 20)
-    })
-  }
+  
 
 /*
   

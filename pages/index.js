@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import styled from 'styled-components'
 import Filter from '../components/filter'
 import Playlist from '../components/playlist'
-import Search from '../components/search'
 import Title from '../components/title'
 
 const Container = styled.section`
