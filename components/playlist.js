@@ -43,31 +43,47 @@ const Login = styled.a`
   justify-content: center;
   display: flex;
 `
+const Filters = styled.div`
+  padding: 10px 0;
+`
+const Select = styled.select`
+  width: 100%;
+  height: 48px;
+  padding: 5px 20px;
+  border: solid 1px #e5e5e5;
+  border-radius: 8px;
+  margin: 0 15px 10px 0;
+  color: #737373;
+  outline: none;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  background-color: #fff;
+`
+const Option = styled.option`
+  color: #737373;
+  background-color: #fff;
+`
 export default class Playlist extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
       playlists: [],
-      loggedIn: '',
+      filters: [],
       search: ''
     }
 
     this.getHashParams = this.getHashParams.bind(this)
+    this.fetchPlaylist = this.fetchPlaylist.bind(this)
 
   }
 
-  getHashParams() {
-    var hashParams = {};
-    var e, r = /([^&;=]+)=?([^&;]*)/g,
-        q = window.location.hash.substring(1);
-        //console.log('hash ' + q)
-    e = r.exec(q)
-    while (e) {
-       hashParams[e[1]] = decodeURIComponent(e[2]);
-       e = r.exec(q);
-    }
-    return hashParams;
+  updateFilter(e){
+    this.setState({
+      country: e.target.value
+    })
+    this.fetchPlaylist()
   }
 
   updateSearch(e){
@@ -76,10 +92,40 @@ export default class Playlist extends Component {
     })
   }
 
-  componentDidMount(){
+  getHashParams() {
+    var hashParams = {};
+    var e, r = /([^&;=]+)=?([^&;]*)/g,
+        q = window.location.hash.substring(1);
+    e = r.exec(q)
+    while (e) {
+       hashParams[e[1]] = decodeURIComponent(e[2]);
+       e = r.exec(q);
+    }
+    return hashParams;
+  }
+
+  fetchFilters(){
+    const apiMocky = 'http://www.mocky.io/v2/5a25fade2e0000213aa90776'
+    fetch(apiMocky)
+      .then(response => response.json())
+      .then(parsedJSON => parsedJSON.filters.map(filter => (
+        {
+          id: `${filter.id}`,
+          name: `${filter.name}`,
+          values: filter.values
+        }
+      ))
+      )
+      .then(filters => this.setState({
+        filters
+      }))
+      .catch(error => console.log('parsing failed', error))
+  }
+
+  fetchPlaylist(){
     const params = this.getHashParams()
     const token = params.access_token
-
+    
     if (token) {
       spotifyApi.setAccessToken(token)
     }
@@ -88,12 +134,10 @@ export default class Playlist extends Component {
       loggedIn: token ? true : false
     })
 
-    //console.log('Token? ' + params.access_token)
-    //console.log('Logado? ' + this.state.loggedIn)
-    
     spotifyApi.getFeaturedPlaylists()
     .then(() => {
-        const apiSpotify = 'https://api.spotify.com/v1/browse/featured-playlists'
+        console.log('País ' + this.state.country)
+        const apiSpotify = 'https://api.spotify.com/v1/browse/featured-playlists?country=' + this.state.country
         const accessToken = token
 
         fetch(apiSpotify, {
@@ -117,35 +161,50 @@ export default class Playlist extends Component {
     ) 
   }
 
-  
+  componentDidMount(){
+    this.fetchFilters()
+    this.fetchPlaylist()
+  }
 
-/*
-  
   startUpdating() {
-    //this.timeout = setTimeout(() => this.fetchFilters(), 30000)
+    this.timeout = setTimeout(() => this.fetchPlaylist(), 30000)
   }
 
-  componentDidMount() {
-    this.fetchPlaylists()
-    //this.getHashParams()
-  }
-  componentWillUnmount() {
-    //clearTimeout(this.timeout)
-  }
-*/
   render() {
     let playlists = this.state.playlists.filter((playlist) => {
       return playlist.name.toLowerCase().indexOf(
         this.state.search.toLowerCase()
       ) !== -1
     })
+
+    clearTimeout(this.timeout)
+
     return(
       <Container>
-        { this.state.loggedIn &&
-          <Login href='http://localhost:8888'> Login to Spotify </Login>
+        { this.state.loggedIn === true
+          ? null
+          : <Login href='http://localhost:8888'>Entrar no Spotify</Login>
         }
 
-        <Search type='text' value={this.state.search} onChange={this.updateSearch.bind(this)} placeholder='Digite o nome da playlist' />
+        <Filters>
+          <Select onChange={this.updateFilter.bind(this)}>
+            <Option>Selecione um país</Option>
+            {
+              this.state.filters.map(filter => {
+                if(filter.id === "country")
+                  return (
+                    filter.values.map(item =>
+                      <Option key={item.value} value={item.value}>{item.name}</Option>
+                    )
+                  )
+                  return null
+                }
+              )
+            }
+          </Select>
+        </Filters>
+
+        <Search type='text' value={this.state.search} onChange={this.updateSearch.bind(this)} placeholder='Buscar playlists' />
         
         <Title type='h2' color='#3e3e3e' label='Playlists' />
 
