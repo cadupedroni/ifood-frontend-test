@@ -8,12 +8,15 @@ const spotifyApi = new SpotifyWebApi()
 const Container = styled.section`
   flex-direction: column;
   display: flex;
-`
-const Name = styled.p`
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 1rem;
-  color: #3e3e3e;
-  margin: 0;
+  @media (min-width: 992px) {
+    width: 100%;
+    max-width: 960px;
+  }
+
+  @media (min-width: 1200px) {
+    width: 100%;
+    max-width: 1140px;
+  }
 `
 const Search = styled.input`
   height: 36px;
@@ -63,6 +66,17 @@ const Select = styled.select`
 const Option = styled.option`
   color: #737373;
   background-color: #fff;
+`
+const Lista = styled.ul`
+  margin: 0;
+  padding: 0;
+`
+const Name = styled.p`
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  color: #3e3e3e;
+  line-height: 1.8rem;
+  margin: 0;
 `
 export default class Playlist extends Component {
   constructor(props) {
@@ -136,7 +150,6 @@ export default class Playlist extends Component {
 
     spotifyApi.getFeaturedPlaylists()
     .then(() => {
-        console.log('País ' + this.state.country)
         const apiSpotify = 'https://api.spotify.com/v1/browse/featured-playlists?country=' + this.state.country
         const accessToken = token
 
@@ -161,13 +174,18 @@ export default class Playlist extends Component {
     ) 
   }
 
+  startUpdating() {
+    this.timeout = setTimeout(() => this.fetchPlaylist(), 30000)
+  }
+
   componentDidMount(){
     this.fetchFilters()
     this.fetchPlaylist()
+    this.startUpdating()
   }
 
-  startUpdating() {
-    this.timeout = setTimeout(() => this.fetchPlaylist(), 30000)
+  componentWillUnMount(){
+    clearTimeout(this.timeout)
   }
 
   render() {
@@ -176,9 +194,6 @@ export default class Playlist extends Component {
         this.state.search.toLowerCase()
       ) !== -1
     })
-
-    clearTimeout(this.timeout)
-
     return(
       <Container>
         { this.state.loggedIn === true
@@ -210,11 +225,11 @@ export default class Playlist extends Component {
 
         {
           playlists.map(playlist => 
-            <ul key={playlist.id}>
+            <Lista key={playlist.id}>
               <li>
                 <Name>{playlist.name}</Name>
               </li>
-            </ul>
+            </Lista>
           )
         }
        

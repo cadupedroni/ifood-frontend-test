@@ -6,6 +6,13 @@ import Title from '../components/title'
 const Container = styled.section`
   flex-direction: column;
   display: flex;
+  @media (min-width: 992px) {
+    align-items: center;
+  }
+
+  @media (min-width: 1200px) {
+    align-items: center;
+  }
 `
 export default class Index extends Component {
  render() {
