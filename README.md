@@ -43,7 +43,6 @@ To create the backend it was used as a reference, this is a lightweight wrapper 
 A escolha do Next.js foi feita por sua praticidade de: 
 - criar as páginas e suas respectivas rotas
 - hot code reload
-- configurar uma página de erros 
 - renderização universal
 - diversos plugins
 
