@@ -71,6 +71,9 @@ const Lista = styled.ul`
   margin: 0;
   padding: 0;
 `
+const Items = styled.li`
+  list-style-type: none;
+`
 const Name = styled.p`
   font-family: Arial, Helvetica, sans-serif;
   font-size: 1rem;
@@ -169,7 +172,7 @@ export default class Playlist extends Component {
         .then(playlists => this.setState({
           playlists
         }))    
-        .catch(error => console.log('parsing failed', error))
+        .catch(error => console.log('Empty list', error))
       }
     ) 
   }
@@ -226,9 +229,9 @@ export default class Playlist extends Component {
         {
           playlists.map(playlist => 
             <Lista key={playlist.id}>
-              <li>
+              <Items>
                 <Name>{playlist.name}</Name>
-              </li>
+              </Items>
             </Lista>
           )
         }
