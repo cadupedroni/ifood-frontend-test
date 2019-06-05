@@ -183,7 +183,7 @@ export default class Playlist extends Component {
       <Container>
         { this.state.loggedIn === true
           ? null
-          : <Login href='http://localhost:8888'>Entrar no Spotify</Login>
+          : <Login href='http://localhost:8888/login'>Entrar no Spotify</Login>
         }
 
         <Filters>
